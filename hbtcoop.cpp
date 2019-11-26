@@ -1,4 +1,4 @@
-#include "medishares.hpp"
+#include "hbtcoop.hpp"
 #include <eosiolib/time.hpp>
 
 using namespace eosio;
@@ -21,7 +21,7 @@ asset medishares::keymarket::convert_to_exchange( connector& c, asset in ) {
     return asset( issued, supply.symbol );
 }
 
-asset medishares::keymarket::convert_from_exchange( connector& c, asset in ) {
+asset hbtcoop::keymarket::convert_from_exchange( connector& c, asset in ) {
     eosio_assert( in.symbol== supply.symbol, "unexpected asset symbol input" );
 
     real_type R(supply.amount - in.amount);
@@ -41,7 +41,7 @@ asset medishares::keymarket::convert_from_exchange( connector& c, asset in ) {
     return asset( out, c.balance.symbol );
 }
 
-asset medishares::keymarket::convert( asset from, symbol_type to ) {
+asset hbtcoop::keymarket::convert( asset from, symbol_type to ) {
     auto sell_symbol  = from.symbol;
     auto ex_symbol    = supply.symbol;
     auto base_symbol  = base.balance.symbol;
@@ -71,7 +71,7 @@ asset medishares::keymarket::convert( asset from, symbol_type to ) {
     return from;
 }
 
-void medishares::init(const uint64_t guarantee_rate, const uint64_t ref_rate, asset max_claim)
+void hbtcoop::init(const uint64_t guarantee_rate, const uint64_t ref_rate, asset max_claim)
 {
     eosio_assert(ref_rate > 0 && guarantee_rate > 0, "must positive rate");
     eosio_assert((ref_rate + guarantee_rate) < 1000, "invalid parameters");
@@ -106,7 +106,7 @@ void medishares::init(const uint64_t guarantee_rate, const uint64_t ref_rate, as
     }); 
 }
 
-void medishares::handleTransfer(const account_name from, const account_name to, const asset& quantity, string memo)
+void hbtcoop::handleTransfer(const account_name from, const account_name to, const asset& quantity, string memo)
 {
     if(from == _self || to != _self){
         return;
@@ -188,7 +188,7 @@ void medishares::handleTransfer(const account_name from, const account_name to, 
     add_balance(participator, key_out, _self);
 }
 
-void medishares::sellkey(account_name account, asset key_quantity){
+void hbtcoop::sellkey(account_name account, asset key_quantity){
     require_auth(account);
     eosio_assert(key_quantity.amount > 0, "quantity cannot be negative");
     eosio_assert(key_quantity.symbol == KEY_SYMBOL, "this asset does not supported");
@@ -219,7 +219,7 @@ void medishares::sellkey(account_name account, asset key_quantity){
     }
 }
 
-void medishares::transfer(account_name from, account_name to, asset quantity, string memo)
+void hbtcoop::transfer(account_name from, account_name to, asset quantity, string memo)
 {
     eosio_assert(from != to, "cannot transfer to self");
     require_auth(from);
@@ -242,7 +242,7 @@ void medishares::transfer(account_name from, account_name to, asset quantity, st
     }
 }
 
-bool medishares::has_balance(account_name owner, asset currency){
+bool hbtcoop::has_balance(account_name owner, asset currency){
     auto accounts_itr = accounts.find(owner);
     if(accounts_itr == accounts.end()){
         return false;
@@ -258,7 +258,7 @@ bool medishares::has_balance(account_name owner, asset currency){
     }
 }
 
-void medishares::sub_balance(account_name owner, asset value){
+void hbtcoop::sub_balance(account_name owner, asset value){
     auto accounts_itr = accounts.find(owner);
     eosio_assert(accounts_itr != accounts.end(), "account does not exist in this contract");
 
@@ -281,7 +281,7 @@ void medishares::sub_balance(account_name owner, asset value){
     }
 }
 
-void medishares::add_balance(account_name owner, asset value, account_name ram_payer)
+void hbtcoop::add_balance(account_name owner, asset value, account_name ram_payer)
 {
     asset_entry asset_e;
     asset_e.balance = value;
@@ -313,7 +313,7 @@ void medishares::add_balance(account_name owner, asset value, account_name ram_p
     }
 }
 
-void medishares::stakekey(account_name account, asset key_quantity){
+void hbtcoop::stakekey(account_name account, asset key_quantity){
     require_auth(account);
     eosio_assert(key_quantity.amount > 0, "quantity cannot be negative");
     eosio_assert(key_quantity.symbol == KEY_SYMBOL, "this asset is not supported or the symbol precision mismatch");
@@ -323,11 +323,10 @@ void medishares::stakekey(account_name account, asset key_quantity){
 
     auto accounts_itr = accounts.find(account);
 
-    //若未投票，直接结束
     if(accounts_itr->vote_list.size() == 0)
         return;
 
-    //遍历所投过的case，更新case票数，若case已过投票窗口期，则不更新；若case已删除，则删除对应投票项
+   
     for(auto list_itr = accounts_itr->vote_list.begin(); list_itr != accounts_itr->vote_list.end(); list_itr ++){
         auto case_itr = cases.find(list_itr->case_id);
         if(case_itr == cases.end()){
@@ -351,7 +350,7 @@ void medishares::stakekey(account_name account, asset key_quantity){
     }
 }
 
-void medishares::unstakekey(account_name account, asset key_quantity){
+void hbtcoop::unstakekey(account_name account, asset key_quantity){
     require_auth(account);
     eosio_assert(key_quantity.amount > 0, "quantity cannot be negative");
     eosio_assert(key_quantity.symbol == STAKE_SYMBOL, "this asset is not supported or the symbol precision mismatch");
@@ -361,11 +360,11 @@ void medishares::unstakekey(account_name account, asset key_quantity){
 
     auto accounts_itr = accounts.find(account);
 
-    //若未投票，直接结束
+   
     if(accounts_itr->vote_list.size() == 0)
         return;
 
-    //遍历所投过的case，更新case票数，若case已过投票窗口期，则不更新；若case已删除，则删除对应投票项；若对所有STKEY unstake，则删除投票列表
+    
     for(auto list_itr = accounts_itr->vote_list.begin(); list_itr != accounts_itr->vote_list.end(); list_itr ++){
         auto case_itr = cases.find(list_itr->case_id);
         if(case_itr == cases.end()){
@@ -388,7 +387,7 @@ void medishares::unstakekey(account_name account, asset key_quantity){
     }
 }
 
-void medishares::propose(account_name proposer, name case_name, asset required_fund){
+void hbtcoop::propose(account_name proposer, name case_name, asset required_fund){
     require_auth(proposer);
     eosio_assert(required_fund.amount > 0, "required_fund cannot be negative");
     eosio_assert(required_fund.symbol == CORE_SYMBOL, "this asset is not supported or the symbol precision mismatch");
@@ -417,7 +416,7 @@ void medishares::propose(account_name proposer, name case_name, asset required_f
     });
 }
 
-void medishares::approve(account_name account, uint64_t case_id){
+void hbtcoop::approve(account_name account, uint64_t case_id){
     require_auth(account);
     const auto& case_itr = cases.get(case_id, "case does not exist");
     eosio_assert(case_itr.start_time + TIME_WINDOW_FOR_VOTE >= now(), "out of time for vote");
@@ -452,7 +451,7 @@ void medishares::approve(account_name account, uint64_t case_id){
     }
 }
 
-void medishares::unapprove(account_name account, uint64_t case_id){
+void hbtcoop::unapprove(account_name account, uint64_t case_id){
     require_auth(account);
     const auto& case_itr = cases.get(case_id, "case does not exist");
     eosio_assert(case_itr.start_time + TIME_WINDOW_FOR_VOTE >= now(), "out of time for vote");
@@ -487,7 +486,7 @@ void medishares::unapprove(account_name account, uint64_t case_id){
     }   
 }
 
-void medishares::cancelvote(account_name account, uint64_t case_id){
+void hbtcoop::cancelvote(account_name account, uint64_t case_id){
     require_auth(account);
     const auto& case_itr = cases.get(case_id, "case does not exist");
     eosio_assert(case_itr.start_time + TIME_WINDOW_FOR_VOTE >= now(), "out of time for vote");
@@ -553,7 +552,7 @@ string uint64_string(uint64_t input, int p)
     return result;
 }
 
-void medishares::execproposal(account_name account, uint64_t case_id){
+void hbtcoop::execproposal(account_name account, uint64_t case_id){
     require_auth(account);
 
     auto case_itr = cases.find(case_id);
@@ -631,11 +630,8 @@ void medishares::execproposal(account_name account, uint64_t case_id){
     cases.erase(case_itr);
 }
 
-/*
-1.项目发起人可以随时删除项目；
-2.过了投票期，若投票未通过，则所有人可以删除
-*/
-void medishares::delproposal(account_name account, uint64_t case_id){
+
+void hbtcoop::delproposal(account_name account, uint64_t case_id){
     require_auth(account);
 
     auto case_itr = cases.find(case_id);
