@@ -26,9 +26,9 @@ struct transfer_args
     string memo;
 };
 
-class medishares: public eosio::contract{
+class hbtcoop: public eosio::contract{
   public:
-    medishares(account_name self):
+    hbtcoop(account_name self):
     contract(self),
     global(_self, _self),
     keymarket(_self, _self),
@@ -100,7 +100,7 @@ class medishares: public eosio::contract{
     eosio::multi_index<N(keymarket), keymarket> keymarket;
 
     struct asset_entry{
-        asset    balance;          //KEY:可用数KEY数，STKEY:冻结KEY数，EOS:保障余额
+        asset    balance;          
 
         friend bool operator == ( const asset_entry& a, const asset_entry& b ) {
             return a.balance.symbol.name() == b.balance.symbol.name();
@@ -112,8 +112,8 @@ class medishares: public eosio::contract{
     void add_balance(account_name owner, asset value, account_name ram_payer);
 
     struct vote_entry{
-        uint64_t case_id;  //互助项目编号
-        uint8_t  agreed;   //赞成或反对，1:赞成, 0:反对
+        uint64_t case_id;  
+        uint8_t  agreed;   
 
         friend bool operator == ( const vote_entry& a, const vote_entry& b ) {
             return a.case_id == b.case_id;
@@ -122,10 +122,10 @@ class medishares: public eosio::contract{
 
     ///@abi table
     struct accounts {
-        account_name    account;          //账户名
-        time            join_time = 0;    //加入互助保障时间
-        vector<asset_entry> asset_list;   //资产列表
-        vector<vote_entry> vote_list;     //投票列表
+        account_name    account;          
+        time            join_time = 0;    
+        vector<asset_entry> asset_list;   
+        vector<vote_entry> vote_list;     
 
         uint64_t primary_key()const {return account;}
 
@@ -137,14 +137,14 @@ class medishares: public eosio::contract{
     ///@abi table
     struct global
     {
-        uint64_t     ref_rate;        //推荐分割比例（千分之）
-        uint64_t     guarantee_rate;  //保障池分割比例（千分之）
-        asset        guarantee_pool;  //保障池余额
-        asset        bonus_pool;      //分红池余额
-        uint64_t     cases_num;       //发起的互助项目总数
-        uint64_t     applied_cases;   //申请成功的项目数
-        uint64_t     guaranteed_accounts;  //当前受保用户总数
-        asset        max_claim;       //单个互助项目可申请的最大token数量
+        uint64_t     ref_rate;        
+        uint64_t     guarantee_rate;  
+        asset        guarantee_pool;  
+        asset        bonus_pool;      
+        uint64_t     cases_num;       
+        uint64_t     applied_cases;   
+        uint64_t     guaranteed_accounts;  
+        asset        max_claim;       
 
         auto primary_key()const{return 0;}
         EOSLIB_SERIALIZE(global, (ref_rate)(guarantee_rate)(guarantee_pool)(bonus_pool)(cases_num)(applied_cases)(guaranteed_accounts)(max_claim))
@@ -154,13 +154,13 @@ class medishares: public eosio::contract{
     ///@abi table
     struct cases
     {
-        uint64_t        case_id;        //互助项目编号
-        name            case_name;      //项目名
-        account_name    proposer;       //互助申请账号
-        asset           required_fund;  //请求的资助金额
-        time            start_time;     //开始时间
-        asset           vote_yes;       //投赞成的STKEY数
-	asset           vote_no;        //投反对的STKEY数
+        uint64_t        case_id;        
+        name            case_name;      
+        account_name    proposer;       
+        asset           required_fund;  
+        time            start_time;     
+        asset           vote_yes;       
+	asset           vote_no;        
 	
         auto primary_key()const{return case_id;}
         EOSLIB_SERIALIZE(cases, (case_id)(case_name)(proposer)(required_fund)(start_time)(vote_yes)(vote_no))
@@ -178,7 +178,7 @@ extern "C"
             eosio_assert(code == N(eosio), "onerror action's are only valid from the \"eosio\" system account"); 
         }
 
-        medishares thiscontract(self);
+        hbtcoop thiscontract(self);
         if (code == self || action == N(onerror))
         {   // Action is pushed directly to the contract
             switch (action)
